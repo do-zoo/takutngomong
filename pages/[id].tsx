@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/elements/Layout";
 
 type Data = any;
-type Month = [];
 
 function DateDMYToStr(date: Date) {
   const month = date.toLocaleString("en-us", { month: "short" });
@@ -15,7 +14,8 @@ function DateDMYToStr(date: Date) {
 
 const PersonalPage: NextPage = () => {
   const [data, setData] = useState<Data>();
-  const [commentInput, setCommentInput] = useState<string>();
+  const [commentInput, setCommentInput] = useState<string>("");
+  const [messageInput, setMessageInput] = useState<string>("");
   const [rplyMsgOpen, setRplyMsgOpen] = useState<boolean>(false);
 
   console.log(commentInput?.length);
@@ -67,10 +67,14 @@ const PersonalPage: NextPage = () => {
     setRplyMsgOpen(!rplyMsgOpen);
   };
 
-  const handleSendComment = async (id: string, comment: string) => {
+  const handleAddComment = async (id: string, comment: string) => {
     if (!data?.data) return;
     const messageId = data?.data.find((d: any) => d._id === id);
-    if (messageId) {
+    if (
+      messageId &&
+      messageId.comment.length > 0 &&
+      !messageId.comment[0]._id
+    ) {
       await fetch(`/api/comment?id=${id}`, {
         method: "POST",
         headers: {
@@ -83,20 +87,37 @@ const PersonalPage: NextPage = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          setData((prev: any) => {
-            const newData = prev?.data?.map((d: any) => {
-              if (d._id === messageId._id) {
-                d.comment = data.comment;
-              }
-              return d;
-            });
-
-            return { ...prev, data: newData };
-          });
+          if (data._id === id) {
+            handleGetComment(id);
+          }
+          setCommentInput("");
         });
     }
     setRplyMsgOpen(true);
   };
+
+  const handleAddMessage = async (message: string) => {
+    if (!data?.data) return;
+    await fetch(`/api/message?id=${data._id}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        message: message,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        // setData((prev: any) => {
+        //   const newData = [...prev?.data, data];
+        //   return { ...prev, data: newData };
+        // });
+      });
+  };
+  console.log(data);
+
   return (
     <Layout title={data?.name || "Personal Page"}>
       <div>
@@ -114,8 +135,15 @@ const PersonalPage: NextPage = () => {
             <textarea
               className="bg-slate-800 w-full rounded-md mb-2 p-2 min-h-[120px] resize-none scrollbar text-lg text-text-color"
               placeholder="Masukan pesan disini..."
+              value={messageInput}
+              onChange={(e) => setMessageInput(e.target.value)}
             />
-            <button className="btn btn-primary w-full">
+            <button
+              className="btn btn-primary w-full"
+              onClick={() => {
+                handleAddMessage(messageInput);
+              }}
+            >
               <span>Kirim</span>
             </button>
           </div>
@@ -128,9 +156,14 @@ const PersonalPage: NextPage = () => {
           </div>
           <div className="message-wrapper px-3">
             <div className="message-item text-left text-sm">
-              {data?.data?.map((msg: any) => (
-                <div className="text-message" key={msg._id}>
-                  <div className="main-message">
+              {data?.data?.map((msg: any, index: number) => (
+                <div
+                  className={`text-message py-5  ${
+                    index > 0 ? "border-t-2 border-main-bg" : "pt-3"
+                  }`}
+                  key={index}
+                >
+                  <div className={`main-message`}>
                     <p className="mb-1">
                       <span>{msg.message}</span>
                     </p>
@@ -184,10 +217,14 @@ const PersonalPage: NextPage = () => {
                     <textarea
                       placeholder="Balas Pesan ini..."
                       className="input w-full p-2 bg-light-violet focus:outline-none border-slate-400 focus:border-slate-700 pr-4 h-20 scrollbar scrollbar-blk resize-none text-base"
+                      value={commentInput}
                       onChange={(e) => setCommentInput(e.target.value)}
                     />
                   </div>
-                  <button className="btn btn-primary text-sm h-auto min-h-full w-full rounded-md py-3 text-white">
+                  <button
+                    className="btn btn-primary text-sm h-auto min-h-full w-full rounded-md py-3 text-white"
+                    onClick={() => handleAddComment(msg._id, commentInput)}
+                  >
                     <span>Balas</span>
                   </button>
                 </div>
