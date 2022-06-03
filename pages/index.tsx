@@ -18,10 +18,14 @@ const Home: NextPage = () => {
                 Tingkatkan Persahabatan Anda dengan menemukan Kekuatan dan area
                 untuk Peningkatan Anda.
               </li>
+              <li>
+                Apabila ada kritik atau saran, jadikan itu sebagai muhasabah
+                diri masing-masing.
+              </li>
             </ul>
           </div>
         </div>
-        <form action="" className="w-full px-4 flex flex-col mb-4">
+        <div className="w-full px-4 flex flex-col mb-4">
           <input
             type="text"
             placeholder="Masukan namamu disini..."
@@ -30,7 +34,7 @@ const Home: NextPage = () => {
           <button className="btn btn-primary">
             <span>Bergabung</span>
           </button>
-        </form>
+        </div>
       </div>
     </Layout>
   );
