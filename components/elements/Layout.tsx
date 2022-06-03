@@ -1,5 +1,5 @@
 import Head from "next/head";
-import type { FC, PropsWithChildren } from "react";
+import { FC, PropsWithChildren, useMemo } from "react";
 import React from "react";
 import Header from "./Header";
 
@@ -7,18 +7,9 @@ interface Props {
   title: string;
 }
 
-interface AboutApp {
-  appName: string;
-}
-
 const Layout: FC<PropsWithChildren<Props>> = (props) => {
   const { children, title } = props;
-
-  const AppDetail: AboutApp = {
-    appName: `${process.env.NEXT_PUBLIC_APP_NAME}`,
-  };
-
-  const { appName } = AppDetail;
+  console.log("Layout dipanggil");
 
   // console.log(`%c${appName}`, `color: #ff0000; font-size: 20px;`);
 
@@ -27,11 +18,7 @@ const Layout: FC<PropsWithChildren<Props>> = (props) => {
 
   return (
     <>
-      <Head>
-        <title>{`${title + " | " + appName}`}</title>
-        <meta name="description" content="Yakin masih gaberani ngomong?" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      <MyHead title={title} />
       <div className="relative bg-main-bg min-h-screen min-w-full">
         <div
           className="bg-fix fixed top-0 left-0 w-full h-screen"
@@ -44,7 +31,7 @@ const Layout: FC<PropsWithChildren<Props>> = (props) => {
           }}
         />
         <section className="content relative max-w-lg mx-auto">
-          <Header title={appName} />
+          <Header />
           {children}
         </section>
       </div>
@@ -52,4 +39,26 @@ const Layout: FC<PropsWithChildren<Props>> = (props) => {
   );
 };
 
-export default Layout;
+export default React.memo(Layout);
+
+interface AboutApp {
+  appName: string;
+}
+
+const MyHead: FC<Props> = ({ title }) => {
+  console.log("MyHead dipanggil");
+
+  const aboutApp = useMemo<AboutApp>(() => {
+    return {
+      appName: `${process.env.NEXT_PUBLIC_APP_NAME}`,
+    };
+  }, []);
+
+  return (
+    <Head>
+      <title>{`${title} | ${aboutApp.appName}`}</title>
+      <meta name="description" content="Yakin masih gaberani ngomong?" />
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
+  );
+};

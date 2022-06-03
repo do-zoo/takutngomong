@@ -1,10 +1,39 @@
 import type { NextPage } from "next";
-// import Head from 'next/head'
-// import Image from 'next/image'
+import Router from "next/router";
+import { useState } from "react";
 import Layout from "../components/elements/Layout";
-// import styles from '../styles/Home.module.css'
 
 const Home: NextPage = () => {
+  const [user, setUser] = useState<string>();
+  // const { pathname } = Router;
+  // console.log(Router);
+
+  const handleClick = async () => {
+    if (!user) {
+      return;
+    }
+    try {
+      const response = await fetch("/api/user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: user }),
+      });
+      const data = await response.json();
+      if (data.error) {
+        alert(data.error);
+        return;
+      }
+      // console.log(data);
+
+      Router.push(`${Router.pathname}${data._id}`);
+      // data.name &&
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <Layout title="Selamat datang">
       <div className="flex flex-col items-center justify-center w-full bg-white mt-4 rounded-lg">
@@ -30,8 +59,16 @@ const Home: NextPage = () => {
             type="text"
             placeholder="Masukan namamu disini..."
             className="input input-bordered input-warning w-full mb-2"
+            onChange={(e) => {
+              setUser(e.target.value);
+            }}
           />
-          <button className="btn btn-primary">
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              handleClick();
+            }}
+          >
             <span>Bergabung</span>
           </button>
         </div>
