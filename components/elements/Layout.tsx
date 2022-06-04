@@ -30,11 +30,11 @@ const Layout: FC<PropsWithChildren<Props>> = (props) => {
             height: "100vh",
           }}
         />
-        <section className="content relative max-w-lg mx-auto  ">
+        <section className="content relative max-w-lg mx-auto min-h-screen flex flex-col justify-between">
           <div className="header inline">
             <Header />
           </div>
-          {children}
+          <main className="min-h-[calc(100vh-56px)]">{children}</main>
           <footer>
             <div className="footer-cont bg-white text-text-color-dark p-2 rounded-md text-center mt-5">
               <p className="text-sm text-main-bg">

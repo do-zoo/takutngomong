@@ -18,7 +18,7 @@ const PersonalPage: NextPage = () => {
   const [messageInput, setMessageInput] = useState<string>("");
   const [rplyMsgOpen, setRplyMsgOpen] = useState<boolean>(false);
 
-  console.log(commentInput?.length);
+  // console.log(commentInput?.length);
 
   const router = useRouter();
   useEffect(() => {
@@ -27,7 +27,7 @@ const PersonalPage: NextPage = () => {
         .then((res) => res.json())
         .then((data) => {
           setData(data);
-          console.log(data);
+          // console.log(data);
         })
         .catch((err) => {
           console.log(err);
@@ -67,13 +67,19 @@ const PersonalPage: NextPage = () => {
     setRplyMsgOpen(!rplyMsgOpen);
   };
 
-  const handleAddComment = async (id: string, comment: string) => {
+  const handleAddComment = async (
+    id: string,
+    comment: string,
+    index: number
+  ) => {
     if (!data?.data) return;
     const messageId = data?.data.find((d: any) => d._id === id);
+    console.log(index);
+
     if (
       messageId &&
-      messageId.comment.length > 0 &&
-      !messageId.comment[0]._id
+      messageId.comment.length >= 0 &&
+      !messageId?.comment[index + 1]?._id
     ) {
       await fetch(`/api/comment?id=${id}`, {
         method: "POST",
@@ -93,6 +99,7 @@ const PersonalPage: NextPage = () => {
           setCommentInput("");
         });
     }
+
     setRplyMsgOpen(true);
   };
 
@@ -109,14 +116,13 @@ const PersonalPage: NextPage = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
-        // setData((prev: any) => {
-        //   const newData = [...prev?.data, data];
-        //   return { ...prev, data: newData };
-        // });
+        setData((prev: any) => {
+          const newData = [...prev?.data, data];
+          return { ...prev, data: newData };
+        });
+        setMessageInput("");
       });
   };
-  console.log(data);
 
   return (
     <Layout title={data?.name || "Personal Page"}>
@@ -174,13 +180,13 @@ const PersonalPage: NextPage = () => {
                   {rplyMsgOpen && (
                     <div className="reply-message pl-6">
                       {/* {`${msg.comment[0]} reply`} */}
-                      {msg?.comment?.map((rply: any) => (
-                        <div className="mt-3" key={rply?._id}>
+                      {msg?.comment?.map((rply: any, index: number) => (
+                        <div className="mt-3" key={index}>
                           <p className="mb-1">
                             <span>{rply.text}</span>
                           </p>
                           <p className="time text-xs text-clr-info">
-                            10 Sep 2021
+                            {DateDMYToStr(new Date(rply.createdAt))}
                           </p>
                         </div>
                       ))}
@@ -223,7 +229,9 @@ const PersonalPage: NextPage = () => {
                   </div>
                   <button
                     className="btn btn-primary text-sm h-auto min-h-full w-full rounded-md py-3 text-white"
-                    onClick={() => handleAddComment(msg._id, commentInput)}
+                    onClick={() =>
+                      handleAddComment(msg._id, commentInput, index)
+                    }
                   >
                     <span>Balas</span>
                   </button>

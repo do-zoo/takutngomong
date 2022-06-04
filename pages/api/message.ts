@@ -28,8 +28,8 @@ const DataMessage = async (
             { _id: query.id },
             { $push: { data: message._id } },
             { new: true }
-          ).then((user) => {
-            res.status(201).json(user);
+          ).then(() => {
+            res.status(201).json(message);
           });
         });
       } catch (error: Error) {
