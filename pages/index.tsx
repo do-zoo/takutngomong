@@ -105,7 +105,12 @@ const PopupChild: FC<PropsModal> = (props) => {
       </div>
       <div className="info mb-5">
         <div className="info-cont bg-[#E7E7F4] text-[#1F1F28] px-3 py-3 rounded-md text-left relative">
-          <input className="w-full pr-24" type="text" disabled value={"link"} />
+          <input
+            className="w-full pr-24"
+            type="text"
+            disabled
+            value={`${window.location.origin}/${data._id}`}
+          />
           {/* create button copy text */}
           <button
             className="absolute right-0 top-0 bg-[#C4C4D0] text-[#41485E] font-semibold hover:bg-[#9696AC]  px-3 py-3 rounded-r-md flex items-center justify-between gap-2 duration-150"
@@ -135,10 +140,12 @@ const PopupChild: FC<PropsModal> = (props) => {
         )}
       </div>
       <div className="button-modal flex justify-center mt-10">
-        <button
+        <a
+          href={`whatsapp://send?text=Kirim%20pesan%20rahasia%20kepada%20saya%20di%20%20https%3A%2F%2Ftakutngomong.vercel.app%2F`}
           className="bg-[#17953A] text-[#E7E7F4] font-semibold hover:bg-[#108531] px-5 py-3 rounded-md flex items-center justify-between gap-2 duration-150 mx-auto"
           // onclick share link
-          onClick={() => {}}
+          target="_blank"
+          rel="noreferrer"
         >
           <span className="uppercase">Share</span>
           <svg
@@ -149,7 +156,7 @@ const PopupChild: FC<PropsModal> = (props) => {
           >
             <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
           </svg>
-        </button>
+        </a>
         <button
           className="bg-[#230DDF] text-[#E7E7F4] font-semibold hover:bg-[#1C1085] px-5 py-3 rounded-md flex items-center justify-between gap-2 duration-150 mx-auto"
           // onclick share link
