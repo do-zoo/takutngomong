@@ -5,8 +5,6 @@ interface Props {
 }
 
 const Header: FC<Props> = () => {
-  console.log("test");
-
   // const { title } = props;
   return (
     <div className="header sticky top-0 w-full max-w-lg text-text-color bg-header-bg py-4 flex justify-center items-center rounded-lg">

@@ -1,6 +1,6 @@
 import { NextPage } from "next";
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
+import React, { FC, PropsWithChildren, useEffect, useState } from "react";
 import Layout from "../components/elements/Layout";
 
 type Data = any;
@@ -14,20 +14,16 @@ function DateDMYToStr(date: Date) {
 
 const PersonalPage: NextPage = () => {
   const [data, setData] = useState<Data>();
-  const [commentInput, setCommentInput] = useState<string>("");
   const [messageInput, setMessageInput] = useState<string>("");
-  const [rplyMsgOpen, setRplyMsgOpen] = useState<boolean>(false);
-
-  // console.log(commentInput?.length);
-
+  // const [commentOpen, setCommentOpen] = useState<boolean>(false);
   const router = useRouter();
+
   useEffect(() => {
     if (router.query.id) {
       fetch(`/api/user?id=${router.query.id}`)
         .then((res) => res.json())
         .then((data) => {
           setData(data);
-          // console.log(data);
         })
         .catch((err) => {
           console.log(err);
@@ -59,12 +55,11 @@ const PersonalPage: NextPage = () => {
               }
               return d;
             });
-
             return { ...prev, data: newData };
           });
         });
     }
-    setRplyMsgOpen(!rplyMsgOpen);
+    // setCommentOpen(!commentOpen);
   };
 
   const handleAddComment = async (
@@ -74,13 +69,9 @@ const PersonalPage: NextPage = () => {
   ) => {
     if (!data?.data) return;
     const messageId = data?.data.find((d: any) => d._id === id);
-    console.log(index);
 
-    if (
-      messageId &&
-      messageId.comment.length >= 0 &&
-      !messageId?.comment[index + 1]?._id
-    ) {
+    console.log(!messageId?.comment[index + 1]?._id);
+    if (messageId && messageId.comment.length >= 0) {
       await fetch(`/api/comment?id=${id}`, {
         method: "POST",
         headers: {
@@ -93,15 +84,22 @@ const PersonalPage: NextPage = () => {
         .then((res) => res.json())
         .then((data) => {
           console.log(data);
-          if (data._id === id) {
-            handleGetComment(id);
-          }
-          setCommentInput("");
+          setData((prev: any) => {
+            prev?.data?.map((d: any, index: number) => {
+              if (d._id === messageId._id) {
+                prev?.data.splice(index, 1, data);
+              }
+            });
+            return { ...prev };
+          });
         });
+      console.log(data);
     }
 
-    setRplyMsgOpen(true);
+    // setCommentOpen(true);
   };
+
+  console.log(data);
 
   const handleAddMessage = async (message: string) => {
     if (!data?.data) return;
@@ -130,7 +128,7 @@ const PersonalPage: NextPage = () => {
         <div className="flex flex-col items-center justify-center w-full bg-white mt-4 rounded-lg gap-6 p-4">
           <div className="info w-full">
             <div className="info-cont bg-my-tosca text-text-color-dark p-2 rounded-md text-center">
-              <h1 className="mb-2">Kirimkan pesan tidak dikaenal kepada</h1>
+              <h1 className="mb-2">Kirimkan pesan tidak dikenal kepada</h1>
               <h1 className="font-bold text-4xl mb-2">{data?.name}</h1>
               <p className="text-sm text-main-bg">
                 *semua kutipan dibawah bersifat anonim
@@ -154,95 +152,139 @@ const PersonalPage: NextPage = () => {
             </button>
           </div>
         </div>
-        <div className="message-cont bg-my-tosca text-text-color-dark p-4 rounded-md text-center mt-4 flex flex-col gap-3">
-          <div className="title-sec">
-            <h2 className="text-lg font-bold">
-              Pesan-pesan untuk <span>{data?.name}</span>{" "}
-            </h2>
-          </div>
-          <div className="message-wrapper px-3">
-            <div className="message-item text-left text-sm">
-              {data?.data?.map((msg: any, index: number) => (
-                <div
-                  className={`text-message py-5  ${
-                    index > 0 ? "border-t-2 border-main-bg" : "pt-3"
-                  }`}
-                  key={index}
-                >
-                  <div className={`main-message`}>
-                    <p className="mb-1">
-                      <span>{msg.message}</span>
-                    </p>
-                    <p className="time text-xs text-clr-info">
-                      {DateDMYToStr(new Date(msg.createdAt))}
-                    </p>
-                  </div>
-                  {rplyMsgOpen && (
-                    <div className="reply-message pl-6">
-                      {/* {`${msg.comment[0]} reply`} */}
-                      {msg?.comment?.map((rply: any, index: number) => (
-                        <div className="mt-3" key={index}>
-                          <p className="mb-1">
-                            <span>{rply.text}</span>
-                          </p>
-                          <p className="time text-xs text-clr-info">
-                            {DateDMYToStr(new Date(rply.createdAt))}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {msg.comment.length > 0 && (
-                    <div className="show-more-opt mt-3 flex items-center justify-center">
-                      <button
-                        className="w-full text-clr-primary flex justify-center items-center gap-1 hover:text-clr-primary-light duration-200"
-                        onClick={() => handleGetComment(msg._id)}
-                      >
-                        <span>
-                          {rplyMsgOpen ? "Tutup balasan" : "Lihat balasan"}
-                        </span>
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-3 w-3"
-                          style={
-                            rplyMsgOpen ? { transform: "rotate(180deg)" } : {}
-                          }
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M15.707 4.293a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 0zm0 6a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 14.586l4.293-4.293a1 1 0 011.414 0z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                  <div className="reply-form mt-3">
-                    <textarea
-                      placeholder="Balas Pesan ini..."
-                      className="input w-full p-2 bg-light-violet focus:outline-none border-slate-400 focus:border-slate-700 pr-4 h-20 scrollbar scrollbar-blk resize-none text-base"
-                      value={commentInput}
-                      onChange={(e) => setCommentInput(e.target.value)}
-                    />
-                  </div>
-                  <button
-                    className="btn btn-primary text-sm h-auto min-h-full w-full rounded-md py-3 text-white"
-                    onClick={() =>
-                      handleAddComment(msg._id, commentInput, index)
-                    }
+        {data?.data.length > 0 ? (
+          <div className="message-cont bg-my-tosca text-text-color-dark p-4 rounded-md text-center mt-4 flex flex-col gap-3">
+            <div className="title-sec">
+              <h2 className="text-lg font-bold">
+                Pesan-pesan untuk <span>{data?.name}</span>{" "}
+              </h2>
+            </div>
+            <div className="message-wrapper px-3">
+              <div className="message-item text-left text-sm">
+                {data?.data?.map((msg: any, index: number) => (
+                  <div
+                    className={`text-message py-5  ${
+                      index > 0 ? "border-t-2 border-main-bg" : "pt-3"
+                    }`}
+                    key={index}
                   >
-                    <span>Balas</span>
-                  </button>
-                </div>
-              ))}
+                    <div className={`main-message`}>
+                      <p className="mb-1">
+                        <span>{msg.message}</span>
+                      </p>
+                      <p className="time text-xs text-clr-info">
+                        {DateDMYToStr(new Date(msg.createdAt))}
+                      </p>
+                    </div>
+                    <CommentComponent
+                      onGetComment={() => handleGetComment(msg?._id)}
+                      commentLength={msg?.comment?.length}
+                    >
+                      <div className="reply-message pl-6">
+                        {msg?.comment?.map((item: any, index: number) => (
+                          <div className="mt-3" key={index}>
+                            <p className="mb-1">
+                              <span>{item?.text}</span>
+                            </p>
+                            <p className="time text-xs text-clr-info">
+                              {item?.createdAt &&
+                                DateDMYToStr(new Date(item?.createdAt))}
+                            </p>
+                          </div>
+                        ))}
+                        <CommentForm
+                          onSubmit={(comment: string) =>
+                            handleAddComment(msg._id, comment, index)
+                          }
+                        ></CommentForm>
+                      </div>
+                    </CommentComponent>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="message-cont bg-my-tosca text-text-color-dark p-4 py-12 rounded-md text-center mt-4 flex flex-col gap-3">
+            <p>Ops... Belum ada pesan untuk anda 🙃</p>
+          </div>
+        )}
       </div>
     </Layout>
   );
 };
 
 export default PersonalPage;
+
+interface CommentProps {
+  id?: string;
+  onSubmit?: (commentInput: string) => void;
+  onGetComment?: (id: string) => void;
+}
+
+const CommentForm: FC<CommentProps> = (props) => {
+  const [commentInput, setCommentInput] = useState<string>("");
+  const { id, onSubmit } = props;
+  return (
+    <div className="reply-form mt-3">
+      <textarea
+        placeholder="Balas Pesan ini..."
+        className="input w-full p-2 bg-light-violet focus:outline-none border-slate-400 focus:border-slate-700 pr-4 h-20 scrollbar scrollbar-blk resize-none text-base"
+        value={commentInput}
+        onChange={(e) => setCommentInput(e.target.value)}
+      />
+      <button
+        className="btn btn-primary text-sm h-auto min-h-full w-full rounded-md py-3 text-white"
+        onClick={() => {
+          onSubmit?.(commentInput);
+          setCommentInput("");
+        }}
+      >
+        <span>Balas</span>
+      </button>
+    </div>
+  );
+};
+
+interface CommentCompProps {
+  id?: string;
+  commentLength: number;
+  onGetComment?: () => void;
+}
+
+const CommentComponent: FC<PropsWithChildren<CommentCompProps>> = (props) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { onGetComment, commentLength, children } = props;
+
+  return (
+    <>
+      {isOpen && children}
+      {commentLength > 0 && (
+        <div className="show-more-opt mt-3 flex items-center justify-center">
+          <button
+            className="w-full text-clr-primary flex justify-center items-center gap-1 hover:text-clr-primary-light duration-200"
+            onClick={() => {
+              onGetComment?.();
+              setIsOpen(!isOpen);
+            }}
+          >
+            <span>{isOpen ? "Tutup balasan" : "Lihat balasan"}</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-3 w-3"
+              style={isOpen ? { transform: "rotate(180deg)" } : {}}
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M15.707 4.293a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 0zm0 6a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 14.586l4.293-4.293a1 1 0 011.414 0z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
+    </>
+  );
+};

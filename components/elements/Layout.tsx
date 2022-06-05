@@ -9,7 +9,6 @@ interface Props {
 
 const Layout: FC<PropsWithChildren<Props>> = (props) => {
   const { children, title } = props;
-  console.log("Layout dipanggil");
 
   // console.log(`%c${appName}`, `color: #ff0000; font-size: 20px;`);
 
@@ -66,8 +65,6 @@ interface AboutApp {
 }
 
 const MyHead: FC<Props> = ({ title }) => {
-  console.log("MyHead dipanggil");
-
   const aboutApp = useMemo<AboutApp>(() => {
     return {
       appName: `${process.env.NEXT_PUBLIC_APP_NAME}`,

@@ -43,7 +43,15 @@ const DataComment = async (
             { $push: { comment: comment._id } },
             { new: true }
           ).then((message) => {
-            res.status(201).json(message);
+            MessageModel.findOne({ _id: message._id })
+              .populate("comment")
+              .exec((err, message) => {
+                if (err) {
+                  res.status(500).json({ error: err });
+                } else {
+                  res.status(201).json(message);
+                }
+              });
           });
         });
       } catch (error: Error) {
