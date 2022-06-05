@@ -259,32 +259,32 @@ const CommentComponent: FC<PropsWithChildren<CommentCompProps>> = (props) => {
   return (
     <>
       {isOpen && children}
-      {commentLength > 0 && (
-        <div className="show-more-opt mt-3 flex items-center justify-center">
-          <button
-            className="w-full text-clr-primary flex justify-center items-center gap-1 hover:text-clr-primary-light duration-200"
-            onClick={() => {
-              onGetComment?.();
-              setIsOpen(!isOpen);
-            }}
+      <div className="show-more-opt mt-3 flex items-center justify-center">
+        <button
+          className="w-full text-clr-primary flex justify-center items-center gap-1 hover:text-clr-primary-light duration-200"
+          onClick={() => {
+            onGetComment?.();
+            setIsOpen(!isOpen);
+          }}
+        >
+          <span>{isOpen ? "Tutup balasan" : "Balas Pesan"}</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-3 w-3"
+            style={isOpen ? { transform: "rotate(180deg)" } : {}}
+            viewBox="0 0 20 20"
+            fill="currentColor"
           >
-            <span>{isOpen ? "Tutup balasan" : "Lihat balasan"}</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-3 w-3"
-              style={isOpen ? { transform: "rotate(180deg)" } : {}}
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M15.707 4.293a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 0zm0 6a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 14.586l4.293-4.293a1 1 0 011.414 0z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
-      )}
+            <path
+              fillRule="evenodd"
+              d="M15.707 4.293a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 011.414-1.414L10 8.586l4.293-4.293a1 1 0 011.414 0zm0 6a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-5-5a1 1 0 111.414-1.414L10 14.586l4.293-4.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+        </button>
+      </div>
+      {/* {commentLength > 0 && (
+      )} */}
     </>
   );
 };
